@@ -189,6 +189,9 @@ main(void)
 				ROM_SysCtlDelay(SysCtlClockGet());
 				GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_3, 0);
 				GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_1, 0);
+				//short period where both lights are red again
+				UARTprintf("Main: red     Side: red    Ped: don't walk \n");
+				ROM_SysCtlDelay(SysCtlClockGet() / 3 / 2);
 				
 			
     }
