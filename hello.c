@@ -65,13 +65,13 @@ main(void)
 	int sw_input;
 	int leds;
 	
-		// Set system clock to 50 MHz
+    // Set system clock to 50 MHz
 	
-	  ROM_SysCtlClockSet(SYSCTL_SYSDIV_4 | SYSCTL_USE_PLL | SYSCTL_XTAL_16MHZ | SYSCTL_OSC_MAIN);		
+    ROM_SysCtlClockSet(SYSCTL_SYSDIV_4 | SYSCTL_USE_PLL | SYSCTL_XTAL_16MHZ | SYSCTL_OSC_MAIN);		
 
 	ROM_SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOF);	// Enable the GPIO port F
 
-		//
+		
     // Unlock PF0 
 	
     HWREG(GPIO_PORTF_BASE + GPIO_O_LOCK) = GPIO_LOCK_KEY;
@@ -111,7 +111,7 @@ main(void)
 				int pressedFlag=0;
 				int swPressed=0;
 			UARTprintf("Main: Green     Side: Red    Ped: don't walk \n");
-				for(i=0;i<15;i++){	//fix timing in loop
+				for(i=0;i<75;i++){	//TODO: fix timing in loop
 						
 						GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_1, 0x2);
 					
@@ -165,17 +165,30 @@ main(void)
 				ROM_SysCtlDelay(SysCtlClockGet() / 3 / 2);
 				
 				//red on main green on side depending on switch pressed
+				//car switch activated, 5 second intervals
 				if(swPressed==1){
 					UARTprintf("Main: red     Side: green    Ped: walk \n");
 					ROM_SysCtlDelay((SysCtlClockGet() / 3 )*10);
 				}
+				//if the pedestrian buttton (SW2) was pressed, leave on for 15 sec
 				else if(swPressed==2){
 					UARTprintf("Main: red     Side: green    Ped: walk \n");
+					//turn on green, turn off red
+					GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_1, 0);
+					GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_3, 0x8);
 					ROM_SysCtlDelay((SysCtlClockGet() / 3 )*10);
 					UARTprintf("Main: red     Side: green    Ped: don't walk \n");
 					ROM_SysCtlDelay((SysCtlClockGet() / 3 )*5);
+					//turn off green
+					GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_3, 0);
 				}
-				
+				//yellow for 3 seconds, then off
+				GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_3, 0x8);
+				GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_1, 0x2);
+				UARTprintf("Main: red     Side: yellow    Ped: don't walk \n");
+				ROM_SysCtlDelay(SysCtlClockGet());
+				GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_3, 0);
+				GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_1, 0);
 				
 			
     }
