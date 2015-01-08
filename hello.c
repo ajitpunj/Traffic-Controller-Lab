@@ -167,8 +167,44 @@ main(void)
 				//red on main green on side depending on switch pressed
 				//car switch activated, 5 second intervals
 				if(swPressed==1){
-					UARTprintf("Main: red     Side: green    Ped: walk \n");
-					ROM_SysCtlDelay((SysCtlClockGet() / 3 )*10);
+					//turn on green and turn off red
+					GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_1, 0);
+					GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_3, 0x8);
+					UARTprintf("Main: red     Side: green    Ped: don't walk \n");
+					int greenPressed=0;
+					//each iteration before was about .2 seconds, 25 should be 5 sec
+					for(i=0;i<25;i++){
+						sw_input = ROM_GPIOPinRead(GPIO_PORTF_BASE, GPIO_PIN_0 | GPIO_PIN_4);
+						if(greenPressed==0 && sw_input==1){
+								greenPressed=1;
+								UARTprintf("SW 1 detected\n");
+						}
+						SysCtlDelay((SysCtlClockGet()/3)/10);
+					}
+					if(greenPressed==1){
+						greenPressed=0;
+						for(i=0;i<25;i++){
+							sw_input = ROM_GPIOPinRead(GPIO_PORTF_BASE, GPIO_PIN_0 | GPIO_PIN_4);
+							if(greenPressed==0 && sw_input==1){
+								greenPressed=1;
+								UARTprintf("SW 1 detected\n");
+							}
+							SysCtlDelay((SysCtlClockGet()/3)/10);
+						}
+					}
+					if(greenPressed==1){
+						greenPressed=0;
+						for(i=0;i<25;i++){
+							sw_input = ROM_GPIOPinRead(GPIO_PORTF_BASE, GPIO_PIN_0 | GPIO_PIN_4);
+							if(greenPressed==0 && sw_input==1){
+								greenPressed=1;
+								UARTprintf("SW 1 detected\n");
+							}
+							SysCtlDelay((SysCtlClockGet()/3)/10);
+						}
+					}
+					//turn off green
+					GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_3, 0);
 				}
 				//if the pedestrian buttton (SW2) was pressed, leave on for 15 sec
 				else if(swPressed==2){
